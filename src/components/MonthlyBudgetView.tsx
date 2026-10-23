@@ -140,26 +140,26 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. PENGELUARAN TETAP / FIXED COST / OPERASIONAL RUMAH */}
-      <section className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <section className="rounded-3xl liquid-glass-interactive p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
           <div>
-            <h2 className="text-base font-semibold text-slate-100">
+            <h2 className="text-base font-semibold text-white">
               01. Pengeluaran Tetap · Fixed Cost & Operasional Rumah
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-300 mt-0.5">
               Klik ikon status untuk mengubah Lunas/Belum Lunas, atau klik Edit untuk menyesuaikan nominal Rencana & Aktual
             </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right font-mono tabular-nums text-xs">
-              <span className="text-slate-400">Rencana: {formatIDR(summary.fixedCostPlanned)}</span>
-              <span className="mx-2 text-slate-600">·</span>
+              <span className="text-slate-300">Rencana: {formatIDR(summary.fixedCostPlanned)}</span>
+              <span className="mx-2 text-slate-500">·</span>
               <span className="text-emerald-400 font-semibold">Aktual: {formatIDR(summary.fixedCostActual)}</span>
             </div>
             <button
               type="button"
               onClick={() => setShowAddFixed((v) => !v)}
-              className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Tambah Pos Tetap</span>
@@ -369,21 +369,21 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
       {/* 2. BIAYA LANGGANAN & HUTANG + 3. VARIABLE COST (2-COLUMN GRID) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Subscription Cost & Debt */}
-        <section className="lg:col-span-7 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between">
+        <section className="lg:col-span-7 rounded-3xl liquid-glass-interactive p-6 flex flex-col justify-between">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
               <div>
-                <h2 className="text-base font-semibold text-slate-100">
+                <h2 className="text-base font-semibold text-white">
                   02. Biaya Langganan & Hutang · Subscription & Debt
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-300 mt-0.5">
                   SPP Sekolah Aira, Aden Hijab, Uang Adat, Forkel & Mental Health Tim IT
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddSub((v) => !v)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-medium flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl liquid-glass-inset hover:border-emerald-400/40 text-slate-100 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Tambah</span>
@@ -538,13 +538,13 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
         </section>
 
         {/* Variable Cost */}
-        <section className="lg:col-span-5 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between">
+        <section className="lg:col-span-5 rounded-3xl liquid-glass-interactive p-6 flex flex-col justify-between">
           <div>
-            <div className="pb-4 border-b border-slate-800">
-              <h2 className="text-base font-semibold text-slate-100">
+            <div className="pb-4 border-b border-white/10">
+              <h2 className="text-base font-semibold text-white">
                 03. Pengeluaran Tidak Tetap · Variable Cost
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Terhubung otomatis dengan Tracker Pengeluaran Sehari-hari & Tracker Jajan/Nongkrong
               </p>
             </div>
@@ -563,7 +563,7 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
                 return (
                   <div
                     key={vc.id}
-                    className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2"
+                    className="p-4 rounded-2xl liquid-glass-inset space-y-2"
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -646,21 +646,21 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
       {/* 4. PENDAPATAN / INCOME & 5. NABUNG / SAVING MASA DEPAN */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Income */}
-        <section className="lg:col-span-6 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between">
+        <section className="lg:col-span-6 rounded-3xl liquid-glass-interactive p-6 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-800">
+            <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/10">
               <div>
-                <h2 className="text-base font-semibold text-slate-100">
+                <h2 className="text-base font-semibold text-white">
                   04. Sumber Pendapatan · Monthly Income
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-300 mt-0.5">
                   Pekerjaan Utama, Uang Cuti, Saham Digital, Freelance & Investasi
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddIncome((v) => !v)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-medium flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl liquid-glass-inset hover:border-emerald-400/40 text-slate-100 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Tambah Sumber</span>
@@ -773,18 +773,18 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
         </section>
 
         {/* Saving "MASA DEPAN" */}
-        <section className="lg:col-span-6 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between">
+        <section className="lg:col-span-6 rounded-3xl liquid-glass-interactive p-6 flex flex-col justify-between">
           <div>
-            <div className="pb-4 border-b border-slate-800">
-              <h2 className="text-base font-semibold text-slate-100">
+            <div className="pb-4 border-b border-white/10">
+              <h2 className="text-base font-semibold text-white">
                 05. Nabung / Saving "Masa Depan"
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Alokasi Dana Darurat, Investasi Saham, Beli Emas, Crypto & Celengan
               </p>
             </div>
 
-            <div className="mt-4 divide-y divide-slate-800/70 text-xs">
+            <div className="mt-4 divide-y divide-white/10 text-xs">
               {period.savings.map((sav) => {
                 const isEditing = editingId === sav.id;
                 return (
@@ -841,21 +841,21 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono tabular-nums">
-            <span className="text-slate-400">TOTAL TABUNGAN MASA DEPAN</span>
+          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-mono tabular-nums">
+            <span className="text-slate-300">TOTAL TABUNGAN MASA DEPAN</span>
             <span className="text-amber-300 font-bold text-sm">{formatIDR(summary.savingActual)}</span>
           </div>
         </section>
       </div>
 
       {/* 6. CATATAN HUTANG KHUSUS (SESUAI BARIS 140-141 CSV) */}
-      <section className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
+      <section className="rounded-3xl liquid-glass-interactive p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-white/10">
           <div>
-            <h2 className="text-base font-semibold text-slate-100">
+            <h2 className="text-base font-semibold text-white">
               06. Catatan Kewajiban Khusus
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-300 mt-0.5">
               Rekap catatan kewajiban bawah spreadsheet: Hutang Kas Masjid dan Hutang PLN Mobile Tagihan
             </p>
           </div>
@@ -868,7 +868,7 @@ export const MonthlyBudgetView: React.FC<MonthlyBudgetViewProps> = ({
           {period.specialLiabilities.map((liab) => (
             <div
               key={liab.id}
-              className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between gap-3"
+              className="p-4 rounded-2xl liquid-glass-inset flex flex-col justify-between gap-3"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">

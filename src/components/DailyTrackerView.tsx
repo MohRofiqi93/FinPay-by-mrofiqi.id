@@ -193,8 +193,8 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
     <div className="space-y-6">
       {/* TOP RECAP STRIP: COD, TF, BRI, BSI & FREKUENSI */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4">
-          <span className="text-xs text-slate-400">Total Tracker Harian ({summary.dailyTrackerCount}x)</span>
+        <div className="rounded-3xl liquid-glass-interactive p-4">
+          <span className="text-xs text-slate-300">Total Tracker Harian ({summary.dailyTrackerCount}x)</span>
           <p
             data-testid="tracker-daily-total"
             className="mt-1.5 text-xl font-bold font-mono tabular-nums text-emerald-400"
@@ -206,8 +206,8 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4">
-          <span className="text-xs text-slate-400">Rekap Total COD</span>
+        <div className="rounded-3xl liquid-glass-interactive p-4">
+          <span className="text-xs text-slate-300">Rekap Total COD</span>
           <p
             data-testid="tracker-cod-total"
             className="mt-1.5 text-xl font-bold font-mono tabular-nums text-amber-300"
@@ -217,8 +217,8 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
           <p className="mt-1 text-[11px] text-slate-400">Pembayaran Tunai / Kurir</p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4">
-          <span className="text-xs text-slate-400">Rekap Total Transfer (TF)</span>
+        <div className="rounded-3xl liquid-glass-interactive p-4">
+          <span className="text-xs text-slate-300">Rekap Total Transfer (TF)</span>
           <p
             data-testid="tracker-tf-total"
             className="mt-1.5 text-xl font-bold font-mono tabular-nums text-sky-400"
@@ -228,8 +228,8 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
           <p className="mt-1 text-[11px] text-slate-400">BRI: {formatCompactIDR(summary.totalBriExpenses)} · BSI: {formatCompactIDR(summary.totalBsiExpenses)}</p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4">
-          <span className="text-xs text-slate-400">Jajan & Nongkrong ({summary.hangoutTrackerCount}x)</span>
+        <div className="rounded-3xl liquid-glass-interactive p-4">
+          <span className="text-xs text-slate-300">Jajan & Nongkrong ({summary.hangoutTrackerCount}x)</span>
           <p
             data-testid="tracker-hangout-total"
             className="mt-1.5 text-xl font-bold font-mono tabular-nums text-rose-400"
@@ -241,15 +241,15 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
       </div>
 
       {/* SECTION 1: TRACKER PENGELUARAN SEHARI-HARI DALAM 1 BULAN */}
-      <section className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <section className="rounded-3xl liquid-glass-interactive p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
           <div className="flex items-center gap-2.5">
             <ShoppingBag className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
-              <h2 className="text-base font-semibold text-slate-100">
+              <h2 className="text-base font-semibold text-white">
                 Tracker Pengeluaran Sehari-hari dalam 1 Bulan ({period.monthLabel})
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-300">
                 Kalkulasi otomatis Qty × Harga Satuan · Bisa tambah, revisi/edit, simpan & hapus otomatis ke database
               </p>
             </div>
@@ -259,7 +259,7 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
         {/* Form Input Pengeluaran Sehari-hari */}
         <form
           onSubmit={handleSubmitDaily}
-          className="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3"
+          className="mt-4 p-4 rounded-2xl liquid-glass-inset space-y-3"
         >
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div className="sm:col-span-2">
@@ -597,15 +597,15 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
       </section>
 
       {/* SECTION 2: TRACKER JAJAN / NONGKRONG DALAM 1 BULAN */}
-      <section className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <section className="rounded-3xl liquid-glass-interactive p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
           <div className="flex items-center gap-2.5">
             <Coffee className="w-5 h-5 text-amber-400 shrink-0" />
             <div>
-              <h2 className="text-base font-semibold text-slate-100">
+              <h2 className="text-base font-semibold text-white">
                 Tracker Jajan & Nongkrong dalam 1 Bulan
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-300">
                 Pantau frekuensi nongkrong, kondangan & pengeluaran gaya hidup agar tetap di bawah plafon Rp 1.500.000
               </p>
             </div>
@@ -617,7 +617,7 @@ export const DailyTrackerView: React.FC<DailyTrackerViewProps> = ({
 
         <form
           onSubmit={handleSubmitHangout}
-          className="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800 grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
+          className="mt-4 p-4 rounded-2xl liquid-glass-inset grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
         >
           <div className="sm:col-span-2">
             <label htmlFor="hangout-date" className="block text-xs text-slate-400 mb-1">

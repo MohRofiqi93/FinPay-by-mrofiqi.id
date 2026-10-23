@@ -29,7 +29,7 @@ jobs:
 
       - name: 3. Install Bahan & Build Website
         run: |
-          bun install --frozen-lockfile
+          bun install
           bun run build
 
       - name: 4. Siapkan File untuk GitHub Pages

@@ -1,0 +1,44 @@
+name: Live Website ke GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build_and_deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Ambil Kode Repositori
+        uses: actions/checkout@v4
+
+      - name: 2. Siapkan Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 3. Install Bahan & Build Website (Vite PWA)
+        run: |
+          npm install
+          npm run build
+
+      - name: 4. Siapkan File untuk GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: 5. Tayangkan ke GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

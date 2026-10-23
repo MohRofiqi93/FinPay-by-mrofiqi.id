@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#0F172A"/>
+  <rect x="36" y="36" width="440" height="440" rx="88" stroke="#10B981" stroke-width="8" stroke-opacity="0.35"/>
+  <path d="M128 352V192C128 165.49 149.49 144 176 144H336C362.51 144 384 165.49 384 192V320C384 346.51 362.51 368 336 368H144C135.163 368 128 360.837 128 352Z" fill="#1E293B" stroke="#10B981" stroke-width="16"/>
+  <path d="M180 288L232 236L272 276L336 208" stroke="#10B981" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="336" cy="208" r="18" fill="#F59E0B"/>
+  <text x="256" y="432" text-anchor="middle" fill="#F8FAFC" font-family="sans-serif" font-weight="bold" font-size="38" letter-spacing="2">MROFIQI.ID</text>
+</svg>

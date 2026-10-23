@@ -1,0 +1,91 @@
+name: Build Android APK & AAB + Paket Hosting Rumahweb (mrofiqi.id)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android-and-web:
+    name: Build .APK, .AAB & Paket cPanel Rumahweb
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 3. Setup Java JDK 17 (Untuk Android Gradle Build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 4. Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 5. Install Dependencies & Build Web App (PWA)
+        run: |
+          npm install
+          npm run build
+          cp public/.htaccess dist/.htaccess || true
+
+      - name: 6. Buat File ZIP Siap Upload ke cPanel Rumahweb (mrofiqi.id)
+        run: |
+          cd dist
+          zip -r ../rumahweb-cpanel-mrofiqi-id.zip . -x "*.DS_Store"
+
+      - name: 7. Inisialisasi Project Android Native (Capacitor)
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android --no-save
+          npx cap add android || true
+          npx cap sync android
+
+      - name: 8. Buat Keystore & Tanda Tangani APK + AAB Otomatis
+        run: |
+          keytool -genkey -v -keystore finplanner-release.keystore \
+            -alias mrofiqi -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass mrofiqi2026 -keypass mrofiqi2026 \
+            -dname "CN=mrofiqi.id, OU=FinTech, O=mrofiqi, L=Indonesia, S=ID, C=ID"
+
+      - name: 9. Build Android .APK (Siap Install di HP) & .AAB (Play Store)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleRelease bundleRelease
+
+          # Sign Release APK & AAB agar bisa langsung di-install di semua HP Android
+          BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -n 1)
+          $BUILD_TOOLS_DIR/zipalign -v -p 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk \
+            app/build/outputs/apk/release/FinPlanner-mrofiqi-signed.apk
+          $BUILD_TOOLS_DIR/apksigner sign \
+            --ks ../finplanner-release.keystore \
+            --ks-key-alias mrofiqi \
+            --ks-pass pass:mrofiqi2026 \
+            --key-pass pass:mrofiqi2026 \
+            app/build/outputs/apk/release/FinPlanner-mrofiqi-signed.apk
+
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore ../finplanner-release.keystore \
+            -storepass mrofiqi2026 -keypass mrofiqi2026 \
+            app/build/outputs/bundle/release/app-release.aab mrofiqi
+
+          cp app/build/outputs/apk/debug/app-debug.apk ../FinPlanner-mrofiqi-debug.apk
+          cp app/build/outputs/apk/release/FinPlanner-mrofiqi-signed.apk ../FinPlanner-mrofiqi-release.apk
+          cp app/build/outputs/bundle/release/app-release.aab ../FinPlanner-mrofiqi-release.aab
+
+      - name: 10. Upload File .APK, .AAB & ZIP Hosting Rumahweb ke Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Paket-Lengkap-APK-AAB-dan-Hosting-mrofiqi-id
+          path: |
+            FinPlanner-mrofiqi-release.apk
+            FinPlanner-mrofiqi-debug.apk
+            FinPlanner-mrofiqi-release.aab
+            rumahweb-cpanel-mrofiqi-id.zip
+            finplanner-release.keystore

@@ -1,0 +1,30 @@
+# ============================================================================
+# KONFIGURASI HOSTING RUMAHWEB (cPanel Apache / LiteSpeed) — mrofiqi.id
+# ============================================================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Paksa HTTPS agar Service Worker & Offline Mode Android berjalan aman
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Jangan arahkan ulang file statis, manifest, atau service worker
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Pastikan MIME Type untuk Web App Manifest & Service Worker dikenali Android
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest .json
+  AddType application/javascript .js
+</IfModule>
+
+# Matikan cache berlebih untuk Service Worker agar update aplikasi langsung terdeteksi
+<FilesMatch "^(sw\.js|registerSW\.js|manifest\.webmanifest|index\.html)$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </IfModule>
+</FilesMatch>

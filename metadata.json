@@ -1,0 +1,8 @@
+{
+  "name": " FinPlanner by mrofiqi.id",
+  "description": "Aplikasi Manajemen Keuangan Pribadi (Financial Planner) Offline-First dengan Auto-Sync dua arah ke Google Sheets, Multi-Bulan Otomatis, Akumulasi Saldo Rollover, dan Analitik Real-Time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "appId": "id.mrofiqi.finplanner",
+  "appName": "FinPlanner mrofiqi.id",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

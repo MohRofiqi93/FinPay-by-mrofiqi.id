@@ -1,0 +1,55 @@
+{
+  "accounts": {
+    "mrofiqi": {
+      "username": "mrofiqi",
+      "email": "itptgaramofficial@gmail.com",
+      "passwordHash": "sha256:b5e04133aa090380",
+      "isEmailVerified": true,
+      "isApprovedByOwner": true,
+      "verifiedAt": "2026-10-23T18:01:25.055Z",
+      "approvedByEmail": "itptgaramofficial@gmail.com",
+      "createdAt": "2026-10-23T18:01:21.043Z",
+      "lastLoginAt": "2026-10-23T18:01:25.055Z"
+    }
+  },
+  "pendingRequests": {
+    "req-1792778127395-307x3": {
+      "requestId": "req-1792778127395-307x3",
+      "username": "mrofiqi",
+      "email": "itptgaramofficial@gmail.com",
+      "passwordHash": "sha256:b5e04133aa090380",
+      "status": "APPROVED_TOKEN_SENT",
+      "createdAt": "2026-10-23T17:55:27.413Z",
+      "approvedAt": "2026-10-23T17:55:35.525Z",
+      "tokenExpiresAt": "2026-10-23T18:00:35.525Z",
+      "expectedOtpHash": "sha256:9055b63aa8f5f5d6",
+      "dispatchedTokenAfterApproval": "625873",
+      "tokensUsedToday": 1,
+      "failedAttemptsToday": 0
+    },
+    "req-1792778481026-ns0bm": {
+      "requestId": "req-1792778481026-ns0bm",
+      "username": "mrofiqi",
+      "email": "itptgaramofficial@gmail.com",
+      "passwordHash": "sha256:b5e04133aa090380",
+      "status": "VERIFIED",
+      "createdAt": "2026-10-23T18:01:21.043Z",
+      "approvedAt": "2026-10-23T18:01:22.987Z",
+      "tokenExpiresAt": "2026-10-23T18:06:22.987Z",
+      "expectedOtpHash": "sha256:020d463363257fa6",
+      "dispatchedTokenAfterApproval": "643389",
+      "tokensUsedToday": 2,
+      "failedAttemptsToday": 0
+    }
+  },
+  "dailyQuota": {
+    "dateKey": "2026-10-23",
+    "tokensIssuedCount": 2,
+    "wrongAttemptsCount": 0,
+    "lockedUntilNextDay": false,
+    "lockReason": null
+  },
+  "periodsSnapshot": [],
+  "syncQueue": [],
+  "lastUpdatedAt": "2026-10-23T18:01:25.056Z"
+}

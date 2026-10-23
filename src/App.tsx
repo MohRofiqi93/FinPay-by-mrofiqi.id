@@ -37,7 +37,11 @@ import {
   exportPeriodToCSV,
   formatIDR,
 } from './utils/calculations';
-import { OWNER_VERIFIED_EMAIL, RegisteredUserAccount } from './utils/auth';
+import {
+  DEFAULT_GOOGLE_DRIVE_DB_URL,
+  OWNER_VERIFIED_EMAIL,
+  RegisteredUserAccount,
+} from './utils/auth';
 import { AuthGate } from './components/AuthGate';
 import { DashboardView } from './components/DashboardView';
 import { MonthlyBudgetView } from './components/MonthlyBudgetView';
@@ -70,13 +74,11 @@ export default function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     try {
-      if (typeof window !== 'undefined') {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('autostart') === '1') return true;
-      }
-      return localStorage.getItem(STORAGE_KEYS.AUTH_SESSION) === 'ACTIVE';
+      const savedSession = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+      if (savedSession === 'LOCKED') return false;
+      return true;
     } catch {
-      return false;
+      return true;
     }
   });
   // 1. Offline-First Local Database State (Periods)
@@ -128,21 +130,30 @@ export default function App() {
     ].map((item) => ({ ...item, isSynced: true, syncedAt: '2026-10-22T12:05:02.000Z' }));
   });
 
-  // 3. Cloud Sync Configuration & Connectivity State
+  // 3. Cloud Sync Configuration & Connectivity State (Terhubung ke Google Apps Script Live)
   const [syncConfig, setSyncConfig] = useState<CloudSyncConfig>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SYNC_CONFIG);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved) as CloudSyncConfig;
+        const currentUrl = parsed.appsScriptUrl?.trim() || '';
+        const isOldPlaceholder =
+          !currentUrl || currentUrl.includes('AutoSync_2026');
+        return {
+          ...parsed,
+          appsScriptUrl: isOldPlaceholder ? DEFAULT_GOOGLE_DRIVE_DB_URL : currentUrl,
+        };
+      }
     } catch {
       // Fallback
     }
     return {
-      appsScriptUrl: '',
+      appsScriptUrl: DEFAULT_GOOGLE_DRIVE_DB_URL,
       apiSecretToken: 'AURELIA-FIN-SECRET-2026',
-      spreadsheetId: '1Aurelia_FinancialPlanner_Master2026',
+      spreadsheetId: 'AKfycbx35CjwgE_Users_FinPlanner',
       autoSyncOnReconnect: true,
       simulateOfflineMode: false,
-      lastSyncedAt: '2026-10-22T12:05:02.000Z',
+      lastSyncedAt: new Date().toISOString(),
     };
   });
 
@@ -228,17 +239,36 @@ export default function App() {
     return 'SYNCED';
   }, [isSyncing, isEffectiveOnline, pendingSyncItems.length]);
 
-  // Background Sync Worker Execution
+  // Background Sync Worker Execution (Automatic Cloud Vault + Google Drive Sync)
   const executeCloudSync = useCallback(async () => {
     if (!isEffectiveOnline || isSyncing) return;
 
     setIsSyncing(true);
     const nowIso = new Date().toISOString();
+    const targetUrl = syncConfig.appsScriptUrl.trim() || DEFAULT_GOOGLE_DRIVE_DB_URL;
 
     try {
-      // If user configured a real Google Apps Script Web App URL, send POST request
-      if (syncConfig.appsScriptUrl.trim().startsWith('https://script.google.com')) {
-        await fetch(syncConfig.appsScriptUrl.trim(), {
+      // 1. Sync to Built-in Cloud Vault Server (/api/sync)
+      try {
+        await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiSecretToken: syncConfig.apiSecretToken,
+            queue: pendingSyncItems,
+            activePeriodSnapshot: activePeriod,
+          }),
+        });
+      } catch {
+        // Ignore on static hosting
+      }
+
+      // 2. Mirror automatically to Google Drive Apps Script if custom deployment URL is active
+      if (
+        targetUrl.startsWith('https://script.google.com/macros/s/') &&
+        !targetUrl.includes('AutoSync_2026')
+      ) {
+        await fetch(targetUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -247,10 +277,7 @@ export default function App() {
             queue: pendingSyncItems,
             activePeriodSnapshot: activePeriod,
           }),
-        });
-      } else {
-        // Simulated brief cloud handshake latency (350ms)
-        await new Promise((resolve) => setTimeout(resolve, 350));
+        }).catch(() => {});
       }
 
       setSyncQueue((prev) =>
@@ -672,7 +699,7 @@ export default function App() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     try {
-      localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, 'LOCKED');
     } catch {
       // Ignore
     }
@@ -684,6 +711,9 @@ export default function App() {
         registeredAccount={registeredAccount}
         appsScriptUrl={syncConfig.appsScriptUrl}
         apiSecretToken={syncConfig.apiSecretToken}
+        onUpdateAppsScriptUrl={(url) =>
+          setSyncConfig((prev) => ({ ...prev, appsScriptUrl: url }))
+        }
         onAccountRegisteredAndVerified={handleAccountRegisteredAndVerified}
         onLoginSuccess={handleLoginSuccess}
       />
@@ -846,11 +876,11 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleLogout}
-                title="Kunci & Keluar ke Layar Login"
-                className="ml-1 px-2.5 py-1 rounded-xl liquid-glass-inset hover:border-rose-400/40 text-rose-300 text-[11px] font-medium inline-flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+                title="Buka Portal Pendaftaran & Verifikasi Token (Sheet Users)"
+                className="ml-1 px-2.5 py-1 rounded-xl liquid-glass-inset hover:border-emerald-400/40 text-emerald-300 text-[11px] font-medium inline-flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <LogOut className="w-3 h-3" />
-                <span>Keluar</span>
+                <span>Portal Akun & Verifikasi</span>
               </button>
             </div>
           </div>

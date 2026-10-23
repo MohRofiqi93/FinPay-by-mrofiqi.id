@@ -124,51 +124,102 @@ test('Revising a daily expense updates tracker total, variable cost, and closing
   assert.equal(summary.closingBalance, -3_563_000, 'Closing balance should reflect the +50.000 expense revision');
 });
 
-test('Authentication & Email Verification (itptgaramofficial@gmail.com) enforces owner email, OTP verification, and login credentials', async () => {
+test('Strict Owner Approval (itptgaramofficial@gmail.com), 5-minute token expiry, and 3-token/day rate limit', async () => {
   const {
     OWNER_VERIFIED_EMAIL,
-    generateSixDigitOtp,
+    TOKEN_VALIDITY_MS,
+    canRequestTokenToday,
+    formatCountdownMMSS,
+    getInitialDailyQuota,
+    hashOtpToken,
     hashUserPassword,
+    recordTokenIssued,
     validateRegistrationInput,
+    verifyApprovedOtpAndActivate,
     verifyLoginCredentials,
-    verifyOtpAndActivateAccount,
   } = await import('./auth');
 
-  // 1. Rejects non-owner email
-  const wrongEmailCheck = validateRegistrationInput('mrofiqi', 'rahasia123', 'hacker@gmail.com');
-  assert.equal(wrongEmailCheck.valid, false);
+  // 1. Rejects non-owner email & short passwords
+  assert.equal(validateRegistrationInput('mrofiqi.id', 'rahasia123', 'other@gmail.com').valid, false);
+  assert.equal(validateRegistrationInput('mrofiqi.id', '123', OWNER_VERIFIED_EMAIL).valid, false);
+  assert.equal(validateRegistrationInput('mrofiqi.id', 'rahasia123', OWNER_VERIFIED_EMAIL).valid, true);
 
-  // 2. Accepts owner email (itptgaramofficial@gmail.com)
-  const validRegCheck = validateRegistrationInput('mrofiqi', 'rahasia123', OWNER_VERIFIED_EMAIL);
-  assert.equal(validRegCheck.valid, true);
+  const day1 = new Date('2026-10-24T10:00:00.000Z');
+  let quota = getInitialDailyQuota(day1);
+  assert.equal(canRequestTokenToday(quota, day1).allowed, true);
+  assert.equal(canRequestTokenToday(quota, day1).remainingTokens, 3);
 
-  // 3. Generates 6-digit OTP and verifies account activation
-  const otp = generateSixDigitOtp(20261026);
-  assert.equal(otp.length, 6);
+  const reqId = 'req-test-001';
+  const realOtp = '482910';
 
-  const pendingSession = {
-    username: 'mrofiqi',
+  // 2. Cannot verify OTP BEFORE owner approves in itptgaramofficial@gmail.com
+  const unapprovedPending = {
+    requestId: reqId,
+    username: 'mrofiqi.id',
     email: OWNER_VERIFIED_EMAIL,
-    passwordHash: hashUserPassword('mrofiqi', 'rahasia123'),
-    otpCode: otp,
-    createdAt: '2026-10-26T00:00:00.000Z',
-    expiresAt: '2026-10-26T00:15:00.000Z',
+    passwordHash: hashUserPassword('mrofiqi.id', 'rahasia123'),
+    status: 'WAITING_OWNER_APPROVAL' as const,
+    createdAt: day1.toISOString(),
+    approvedAt: null,
+    tokenExpiresAt: null,
+    expectedOtpHash: hashOtpToken(reqId, realOtp),
+    tokensUsedToday: 0,
+    failedAttemptsToday: 0,
   };
 
-  const wrongOtpResult = verifyOtpAndActivateAccount(pendingSession, '000000');
-  assert.equal(wrongOtpResult.success, false);
+  const beforeApproveAttempt = verifyApprovedOtpAndActivate(unapprovedPending, realOtp, quota, day1);
+  assert.equal(beforeApproveAttempt.success, false, 'Must reject token if owner has not clicked Approve yet');
 
-  const validOtpResult = verifyOtpAndActivateAccount(pendingSession, otp);
-  assert.equal(validOtpResult.success, true);
-  assert.ok(validOtpResult.account);
-  assert.equal(validOtpResult.account.isEmailVerified, true);
+  // 3. Owner approves -> token is valid for exactly 5 minutes (300 seconds)
+  const expiresAt = new Date(day1.getTime() + TOKEN_VALIDITY_MS).toISOString();
+  assert.equal(formatCountdownMMSS(300), '05:00');
 
-  // 4. Verifies login with registered username & password
-  const badPassLogin = verifyLoginCredentials(validOtpResult.account, 'mrofiqi', 'salah');
-  assert.equal(badPassLogin.success, false);
+  const approvedPending = {
+    ...unapprovedPending,
+    status: 'APPROVED_TOKEN_SENT' as const,
+    approvedAt: day1.toISOString(),
+    tokenExpiresAt: expiresAt,
+  };
 
-  const goodLogin = verifyLoginCredentials(validOtpResult.account, 'mrofiqi', 'rahasia123');
-  assert.equal(goodLogin.success, true);
+  // Test after 5 minutes + 1 second -> must fail as expired
+  const afterFiveMin = new Date(day1.getTime() + TOKEN_VALIDITY_MS + 1000);
+  const expiredResult = verifyApprovedOtpAndActivate(approvedPending, realOtp, quota, afterFiveMin);
+  assert.equal(expiredResult.success, false, 'Must reject token after 5 minutes');
+
+  // Test wrong OTP 3 times -> locks account creation for the rest of the day
+  const wrong1 = verifyApprovedOtpAndActivate(approvedPending, '000001', quota, day1);
+  assert.equal(wrong1.success, false);
+  assert.equal(wrong1.updatedQuota.lockedUntilNextDay, false);
+
+  const wrong2 = verifyApprovedOtpAndActivate(approvedPending, '000002', wrong1.updatedQuota, day1);
+  assert.equal(wrong2.success, false);
+  assert.equal(wrong2.updatedQuota.lockedUntilNextDay, false);
+
+  const wrong3 = verifyApprovedOtpAndActivate(approvedPending, '000003', wrong2.updatedQuota, day1);
+  assert.equal(wrong3.success, false);
+  assert.equal(wrong3.updatedQuota.lockedUntilNextDay, true, '3rd wrong attempt must lock until tomorrow');
+  assert.equal(canRequestTokenToday(wrong3.updatedQuota, day1).allowed, false);
+
+  // Next calendar day -> quota resets automatically!
+  const day2 = new Date('2026-10-25T08:00:00.000Z');
+  assert.equal(canRequestTokenToday(wrong3.updatedQuota, day2).allowed, true);
+  assert.equal(canRequestTokenToday(wrong3.updatedQuota, day2).remainingTokens, 3);
+
+  // Test 3 tokens issued in a single day limit
+  let day2Quota = getInitialDailyQuota(day2);
+  day2Quota = recordTokenIssued(day2Quota, day2);
+  day2Quota = recordTokenIssued(day2Quota, day2);
+  day2Quota = recordTokenIssued(day2Quota, day2);
+  assert.equal(canRequestTokenToday(day2Quota, day2).allowed, false, '4th token request on same day must be blocked');
+
+  // Valid OTP within 5 minutes activates account & enables login
+  const freshQuota = getInitialDailyQuota(day1);
+  const validResult = verifyApprovedOtpAndActivate(approvedPending, realOtp, freshQuota, day1);
+  assert.equal(validResult.success, true);
+  assert.ok(validResult.account);
+  assert.equal(validResult.account.isApprovedByOwner, true);
+  assert.equal(verifyLoginCredentials(validResult.account, 'mrofiqi.id', 'rahasia123').success, true);
 });
+
 
 

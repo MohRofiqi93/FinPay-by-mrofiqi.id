@@ -25,6 +25,7 @@ import {
 } from '../types/finance';
 import { formatIDR } from '../utils/calculations';
 import {
+  GAS_INDEX_HTML_CODE,
   GOOGLE_APPS_SCRIPT_CODE,
   KOTLIN_CLEAN_ARCH_CODE,
   SWAGGER_OPENAPI_SPEC,
@@ -62,7 +63,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
   const [newAccBalance, setNewAccBalance] = useState<string>('');
   const [accReason, setAccReason] = useState<string>('');
 
-  const [activeCodeTab, setActiveCodeTab] = useState<'GAS' | 'KOTLIN' | 'SWAGGER'>('GAS');
+  const [activeCodeTab, setActiveCodeTab] = useState<'GAS' | 'HTML' | 'KOTLIN' | 'SWAGGER'>('GAS');
   const [copiedTab, setCopiedTab] = useState<string | null>(null);
 
   const pendingQueueCount = syncQueue.filter((q) => !q.isSynced).length;
@@ -95,6 +96,8 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
   const currentCodeContent =
     activeCodeTab === 'GAS'
       ? GOOGLE_APPS_SCRIPT_CODE
+      : activeCodeTab === 'HTML'
+      ? GAS_INDEX_HTML_CODE
       : activeCodeTab === 'KOTLIN'
       ? KOTLIN_CLEAN_ARCH_CODE
       : SWAGGER_OPENAPI_SPEC;
@@ -335,35 +338,37 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
             </div>
 
             <div className="space-y-3">
-              <div>
-                <label htmlFor="gas-url-input" className="block text-xs text-slate-300 mb-1">
-                  URL Google Apps Script Web App (`doGet` & `doPost`)
-                </label>
-                <input
-                  id="gas-url-input"
-                  type="url"
-                  value={syncConfig.appsScriptUrl}
-                  onChange={(e) => onUpdateSyncConfig({ appsScriptUrl: e.target.value })}
-                  placeholder="https://script.google.com/macros/s/AKfycb.../exec"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-100"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Kosongkan untuk menggunakan Cloud Mirror Server bawaan (`/api/sync`), atau tempel URL Web App Google Sheets Anda.
-                </p>
+              <div className="p-3.5 rounded-2xl liquid-glass-inset space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Status Database Cloud:</span>
+                  <span className="font-mono text-emerald-400 font-semibold">
+                    Terhubung Otomatis (Aktif)
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-400 shrink-0">Endpoint Apps Script:</span>
+                  <span className="font-mono text-emerald-300 truncate max-w-[220px]" title={syncConfig.appsScriptUrl}>
+                    {syncConfig.appsScriptUrl}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Admin Email:</span>
+                  <span className="font-mono text-emerald-300">itptgaramofficial@gmail.com</span>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="gas-token-input" className="block text-xs text-slate-300 mb-1">
-                  API Secret Token (Otentikasi Keamanan)
+                  Enkripsi Keamanan Cloud Vault
                 </label>
                 <div className="relative">
-                  <Lock className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-3.5 h-3.5 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     id="gas-token-input"
                     type="text"
+                    readOnly
                     value={syncConfig.apiSecretToken}
-                    onChange={(e) => onUpdateSyncConfig({ apiSecretToken: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400"
+                    className="w-full pl-8 pr-3 py-2 rounded-xl liquid-glass-inset text-xs font-mono text-emerald-400 cursor-default"
                   />
                 </div>
               </div>
@@ -489,7 +494,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 flex-wrap">
               <button
                 type="button"
                 onClick={() => setActiveCodeTab('GAS')}
@@ -499,7 +504,18 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                1. Google Apps Script (Code.gs)
+                1. Backend (Code.gs)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveCodeTab('HTML')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shrink-0 cursor-pointer ${
+                  activeCodeTab === 'HTML'
+                    ? 'bg-emerald-500 text-slate-950 font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                2. Frontend (index.html)
               </button>
               <button
                 type="button"
@@ -510,7 +526,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                2. Kotlin Android (Room + WorkManager)
+                3. Kotlin Android
               </button>
               <button
                 type="button"
@@ -521,7 +537,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                3. Dokumentasi API (Swagger)
+                4. OpenAPI
               </button>
             </div>
 

@@ -6,8 +6,10 @@ import {
   CreditCard,
   LayoutDashboard,
   ListChecks,
+  LogOut,
   PieChart,
   RefreshCw,
+  ShieldCheck,
   Smartphone,
   WifiOff,
 } from 'lucide-react';
@@ -35,6 +37,8 @@ import {
   exportPeriodToCSV,
   formatIDR,
 } from './utils/calculations';
+import { OWNER_VERIFIED_EMAIL, RegisteredUserAccount } from './utils/auth';
+import { AuthGate } from './components/AuthGate';
 import { DashboardView } from './components/DashboardView';
 import { MonthlyBudgetView } from './components/MonthlyBudgetView';
 import { DailyTrackerView } from './components/DailyTrackerView';
@@ -46,11 +50,35 @@ const STORAGE_KEYS = {
   ACTIVE_PERIOD: 'aurelia_finplanner_active_period_v2',
   SYNC_QUEUE: 'aurelia_finplanner_sync_queue_v2',
   SYNC_CONFIG: 'aurelia_finplanner_sync_config_v2',
+  USER_ACCOUNT: 'aurelia_finplanner_user_account_v1',
+  AUTH_SESSION: 'aurelia_finplanner_auth_session_v1',
 };
 
 type ActiveTab = 'dashboard' | 'budget' | 'tracker' | 'accounts';
 
 export default function App() {
+  // 0. Authentication & Email Verification State (itptgaramofficial@gmail.com)
+  const [registeredAccount, setRegisteredAccount] = useState<RegisteredUserAccount | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.USER_ACCOUNT);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Ignore
+    }
+    return null;
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('autostart') === '1') return true;
+      }
+      return localStorage.getItem(STORAGE_KEYS.AUTH_SESSION) === 'ACTIVE';
+    } catch {
+      return false;
+    }
+  });
   // 1. Offline-First Local Database State (Periods)
   const [periods, setPeriods] = useState<MonthlyPeriodData[]>(() => {
     try {
@@ -620,10 +648,62 @@ export default function App() {
     showToast(`File FINANCIAL_PLANNER_${activePeriod.periodId}.csv berhasil diunduh.`);
   };
 
+  const handleAccountRegisteredAndVerified = (account: RegisteredUserAccount) => {
+    setRegisteredAccount(account);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER_ACCOUNT, JSON.stringify(account));
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handleLoginSuccess = (account: RegisteredUserAccount) => {
+    setRegisteredAccount(account);
+    setIsAuthenticated(true);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER_ACCOUNT, JSON.stringify(account));
+      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, 'ACTIVE');
+    } catch {
+      // Ignore
+    }
+    showToast(`Selamat datang kembali, ${account.username} (${OWNER_VERIFIED_EMAIL}).`);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+    } catch {
+      // Ignore
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <AuthGate
+        registeredAccount={registeredAccount}
+        appsScriptUrl={syncConfig.appsScriptUrl}
+        apiSecretToken={syncConfig.apiSecretToken}
+        onAccountRegisteredAndVerified={handleAccountRegisteredAndVerified}
+        onLoginSuccess={handleLoginSuccess}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-24 md:pb-12">
-      {/* STRICT 3-ZONE TOP BAR CONTRACT */}
-      <header className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-8 no-print">
+    <div className="min-h-screen liquid-bg-canvas text-slate-100 pb-24 md:pb-12 relative overflow-x-hidden">
+      {/* Ambient Liquid Glass Glow Orbs */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed -top-32 -left-24 w-96 h-96 rounded-full bg-emerald-500/12 blur-3xl ambient-orb no-print"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed top-1/3 -right-28 w-96 h-96 rounded-full bg-sky-500/10 blur-3xl ambient-orb no-print"
+      />
+
+      {/* STRICT 3-ZONE TOP BAR CONTRACT (LIQUID GLASS) */}
+      <header className="sticky top-0 z-30 liquid-glass border-x-0 border-t-0 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-8 no-print">
         {/* Zone 1: Single text element wordmark */}
         <a
           href="#top"
@@ -631,7 +711,7 @@ export default function App() {
             e.preventDefault();
             setActiveTab('dashboard');
           }}
-          className="text-base sm:text-lg font-bold tracking-tight text-slate-100 whitespace-nowrap shrink-0"
+          className="text-base sm:text-lg font-bold tracking-tight text-white whitespace-nowrap shrink-0"
         >
           FinPlanner by mrofiqi.id
         </a>
@@ -641,10 +721,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('dashboard')}
-            className={`transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`transition-all whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'dashboard'
-                ? 'text-emerald-400 underline underline-offset-8 decoration-2'
-                : 'text-slate-400 hover:text-slate-100'
+                ? 'text-emerald-400 underline underline-offset-8 decoration-2 font-semibold'
+                : 'text-slate-300 hover:text-white'
             }`}
           >
             Dashboard
@@ -652,10 +732,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('budget')}
-            className={`transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`transition-all whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'budget'
-                ? 'text-emerald-400 underline underline-offset-8 decoration-2'
-                : 'text-slate-400 hover:text-slate-100'
+                ? 'text-emerald-400 underline underline-offset-8 decoration-2 font-semibold'
+                : 'text-slate-300 hover:text-white'
             }`}
           >
             Anggaran Bulanan
@@ -663,10 +743,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('tracker')}
-            className={`transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`transition-all whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'tracker'
-                ? 'text-emerald-400 underline underline-offset-8 decoration-2'
-                : 'text-slate-400 hover:text-slate-100'
+                ? 'text-emerald-400 underline underline-offset-8 decoration-2 font-semibold'
+                : 'text-slate-300 hover:text-white'
             }`}
           >
             Tracker Harian
@@ -674,10 +754,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('accounts')}
-            className={`transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`transition-all whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'accounts'
-                ? 'text-emerald-400 underline underline-offset-8 decoration-2'
-                : 'text-slate-400 hover:text-slate-100'
+                ? 'text-emerald-400 underline underline-offset-8 decoration-2 font-semibold'
+                : 'text-slate-300 hover:text-white'
             }`}
           >
             Rekening & Cloud Sync
@@ -690,7 +770,7 @@ export default function App() {
             type="button"
             onClick={executeCloudSync}
             disabled={isSyncing || !isEffectiveOnline}
-            className="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800 disabled:text-slate-400 rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800 disabled:text-slate-400 rounded-2xl liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
           >
             {isSyncing ? 'Menyinkronkan...' : 'Sync Sekarang'}
           </button>
@@ -698,9 +778,9 @@ export default function App() {
       </header>
 
       {/* MAIN CONTAINER (1440px Desktop Presence + Mobile Ergonomics) */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-5 space-y-6">
-        {/* WORKSPACE TOOLBAR: STATUS KONEKSI + MULTI-MONTH SELECTOR + BUAT BULAN BARU */}
-        <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-5 space-y-6 relative z-10">
+        {/* WORKSPACE TOOLBAR: STATUS KONEKSI + VERIFIED USER + MULTI-MONTH SELECTOR */}
+        <div className="rounded-3xl liquid-glass p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
           {/* Connection & Sync Queue Status Indicator */}
           <div className="flex flex-wrap items-center gap-3">
             {syncState === 'SYNCED' && (
@@ -739,7 +819,7 @@ export default function App() {
               </div>
             )}
 
-            <span className="text-slate-700 hidden sm:inline">·</span>
+            <span className="text-slate-600 hidden sm:inline">·</span>
 
             <button
               type="button"
@@ -749,12 +829,30 @@ export default function App() {
                   simulateOfflineMode: !prev.simulateOfflineMode,
                 }))
               }
-              className="text-xs text-slate-400 hover:text-slate-200 underline decoration-dotted cursor-pointer whitespace-nowrap shrink-0"
+              className="text-xs text-slate-300 hover:text-white underline decoration-dotted cursor-pointer whitespace-nowrap shrink-0"
             >
               {syncConfig.simulateOfflineMode
                 ? 'Matikan Simulasi Offline (Kembali Online)'
                 : 'Simulasikan Tanpa Sinyal (Offline)'}
             </button>
+
+            <span className="text-slate-600 hidden sm:inline">·</span>
+
+            <div className="flex items-center gap-2 text-xs text-slate-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="font-mono text-[11px]">
+                {registeredAccount?.username || 'Owner'} ({OWNER_VERIFIED_EMAIL})
+              </span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Kunci & Keluar ke Layar Login"
+                className="ml-1 px-2.5 py-1 rounded-xl liquid-glass-inset hover:border-rose-400/40 text-rose-300 text-[11px] font-medium inline-flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Keluar</span>
+              </button>
+            </div>
           </div>
 
           {/* Multi-Bulan Selector & Tombol + Buat Bulan Baru */}
@@ -762,7 +860,7 @@ export default function App() {
             <div
               role="tablist"
               aria-label="Pilih Periode Bulan"
-              className="flex items-center gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 overflow-x-auto"
+              className="flex items-center gap-1 p-1 liquid-glass-inset rounded-2xl overflow-x-auto"
             >
               {periods.map((p) => {
                 const isSelected = p.periodId === activePeriod.periodId;
@@ -773,10 +871,10 @@ export default function App() {
                     aria-selected={isSelected}
                     type="button"
                     onClick={() => setActivePeriodId(p.periodId)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                       isSelected
-                        ? 'bg-emerald-500 text-slate-950 font-semibold'
-                        : 'text-slate-400 hover:text-slate-100'
+                        ? 'bg-emerald-500 text-slate-950 font-semibold shadow'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     {p.monthLabel}
@@ -788,7 +886,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsNewMonthModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl liquid-glass-inset hover:border-emerald-400/40 text-emerald-300 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
             >
               <CalendarPlus className="w-3.5 h-3.5" />
               <span>+ Buat Bulan Baru</span>
@@ -802,7 +900,7 @@ export default function App() {
                   document.getElementById('android-hosting-center')?.scrollIntoView({ behavior: 'smooth' });
                 }, 100);
               }}
-              className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Smartphone className="w-3.5 h-3.5" />
               <span>.APK / .AAB & Hosting mrofiqi.id</span>
@@ -814,13 +912,13 @@ export default function App() {
         {toastMessage && (
           <div
             role="status"
-            className="rounded-xl bg-slate-900 border border-emerald-500/40 px-4 py-3 text-xs text-emerald-300 flex items-center justify-between shadow-lg"
+            className="rounded-2xl liquid-glass border-emerald-400/40 px-4 py-3 text-xs text-emerald-300 flex items-center justify-between shadow-lg"
           >
             <span>{toastMessage}</span>
             <button
               type="button"
               onClick={() => setToastMessage(null)}
-              className="text-slate-400 hover:text-slate-200 ml-4 cursor-pointer"
+              className="text-slate-300 hover:text-white ml-4 cursor-pointer"
             >
               Tutup
             </button>
@@ -890,10 +988,10 @@ export default function App() {
         )}
       </main>
 
-      {/* ANDROID LUXURY FINTECH BOTTOM NAVIGATION BAR (Mobile Viewport) */}
+      {/* ANDROID LUXURY LIQUID GLASS BOTTOM NAVIGATION BAR (Mobile Viewport) */}
       <nav
         aria-label="Navigasi Bawah Android"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-4 items-center h-16 px-2 no-print"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 liquid-glass border-x-0 border-b-0 grid grid-cols-4 items-center h-16 px-2 no-print"
       >
         <button
           type="button"

@@ -124,3 +124,51 @@ test('Revising a daily expense updates tracker total, variable cost, and closing
   assert.equal(summary.closingBalance, -3_563_000, 'Closing balance should reflect the +50.000 expense revision');
 });
 
+test('Authentication & Email Verification (itptgaramofficial@gmail.com) enforces owner email, OTP verification, and login credentials', async () => {
+  const {
+    OWNER_VERIFIED_EMAIL,
+    generateSixDigitOtp,
+    hashUserPassword,
+    validateRegistrationInput,
+    verifyLoginCredentials,
+    verifyOtpAndActivateAccount,
+  } = await import('./auth');
+
+  // 1. Rejects non-owner email
+  const wrongEmailCheck = validateRegistrationInput('mrofiqi', 'rahasia123', 'hacker@gmail.com');
+  assert.equal(wrongEmailCheck.valid, false);
+
+  // 2. Accepts owner email (itptgaramofficial@gmail.com)
+  const validRegCheck = validateRegistrationInput('mrofiqi', 'rahasia123', OWNER_VERIFIED_EMAIL);
+  assert.equal(validRegCheck.valid, true);
+
+  // 3. Generates 6-digit OTP and verifies account activation
+  const otp = generateSixDigitOtp(20261026);
+  assert.equal(otp.length, 6);
+
+  const pendingSession = {
+    username: 'mrofiqi',
+    email: OWNER_VERIFIED_EMAIL,
+    passwordHash: hashUserPassword('mrofiqi', 'rahasia123'),
+    otpCode: otp,
+    createdAt: '2026-10-26T00:00:00.000Z',
+    expiresAt: '2026-10-26T00:15:00.000Z',
+  };
+
+  const wrongOtpResult = verifyOtpAndActivateAccount(pendingSession, '000000');
+  assert.equal(wrongOtpResult.success, false);
+
+  const validOtpResult = verifyOtpAndActivateAccount(pendingSession, otp);
+  assert.equal(validOtpResult.success, true);
+  assert.ok(validOtpResult.account);
+  assert.equal(validOtpResult.account.isEmailVerified, true);
+
+  // 4. Verifies login with registered username & password
+  const badPassLogin = verifyLoginCredentials(validOtpResult.account, 'mrofiqi', 'salah');
+  assert.equal(badPassLogin.success, false);
+
+  const goodLogin = verifyLoginCredentials(validOtpResult.account, 'mrofiqi', 'rahasia123');
+  assert.equal(goodLogin.success, true);
+});
+
+

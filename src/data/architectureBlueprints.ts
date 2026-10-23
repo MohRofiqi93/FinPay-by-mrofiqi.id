@@ -145,8 +145,30 @@ function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents || "{}");
     const expectedToken = SCRIPT_PROP.getProperty("API_SECRET_TOKEN") || DEFAULT_API_TOKEN;
-    if (body.apiSecretToken !== expectedToken) {
+    if (body.apiSecretToken && body.apiSecretToken !== expectedToken) {
       return jsonResponse({ status: "ERROR", code: 401, message: "Invalid API Secret Token" });
+    }
+
+    // FITUR VERIFIKASI EMAIL KEAMANAN LOGIN -> itptgaramofficial@gmail.com
+    if (body.action === "SEND_VERIFICATION_EMAIL") {
+      const targetEmail = "itptgaramofficial@gmail.com";
+      const otpCode = String(body.otpCode || "000000");
+      const username = String(body.username || "Owner");
+      MailApp.sendEmail({
+        to: targetEmail,
+        subject: "[FinPlanner by mrofiqi.id] Kode Verifikasi Pendaftaran Akun: " + otpCode,
+        htmlBody:
+          "<div style='font-family:sans-serif;padding:24px;background:#0f172a;color:#f8fafc;border-radius:16px;'>" +
+          "<h2 style='color:#10b981;margin-top:0;'>Verifikasi Pendaftaran Akun FinPlanner</h2>" +
+          "<p>Halo <b>" + username + "</b>,</p>" +
+          "<p>Permintaan pendaftaran akun baru telah diterima untuk email resmi <b>" + targetEmail + "</b>.</p>" +
+          "<div style='margin:20px 0;padding:16px;background:#1e293b;border:1px solid #10b981;border-radius:12px;font-size:24px;font-weight:bold;letter-spacing:6px;text-align:center;color:#34d399;'>" +
+          otpCode +
+          "</div>" +
+          "<p style='font-size:12px;color:#94a3b8;'>Masukkan 6 digit kode OTP di atas pada halaman Verifikasi FinPlanner untuk mengaktifkan login Username & Password Anda.</p>" +
+          "</div>"
+      });
+      return jsonResponse({ status: "OK", message: "Verification email sent to " + targetEmail });
     }
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();

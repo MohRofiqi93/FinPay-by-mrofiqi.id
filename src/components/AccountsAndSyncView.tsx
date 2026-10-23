@@ -102,15 +102,15 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
   return (
     <div className="space-y-6">
       {/* SECTION 1: PANEL SALDO REKENING BANK & E-WALLET + FITUR REVISI SALDO */}
-      <section className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <section className="rounded-3xl liquid-glass-interactive p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
           <div className="flex items-center gap-2.5">
             <CreditCard className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
-              <h2 className="text-base font-semibold text-slate-100">
+              <h2 className="text-base font-semibold text-white">
                 Panel Saldo Rekening Bank & E-Wallet ({period.monthLabel})
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-300">
                 Rekonsiliasi saldo riil di Bank BSI, BRI, BCA, GoPay & DANA kapan saja (Offline maupun Online)
               </p>
             </div>
@@ -120,7 +120,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
             <button
               type="button"
               onClick={onOpenReviseOpeningBalance}
-              className="px-3.5 py-2 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-400/30 text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-400/30 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>Revisi Saldo Awal Bulan ({formatIDR(summary.openingBalance)})</span>
@@ -128,7 +128,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
             <button
               type="button"
               onClick={onExportCSV}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl liquid-glass-inset hover:border-emerald-400/40 text-slate-100 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Ekspor CSV</span>
@@ -136,7 +136,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
             <button
               type="button"
               onClick={onPrintPDF}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl liquid-glass-inset hover:border-emerald-400/40 text-slate-100 text-xs font-medium flex items-center gap-1.5 liquid-btn whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Cetak / PDF</span>
@@ -151,7 +151,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
             return (
               <div
                 key={acc.id}
-                className="rounded-xl bg-slate-950 border border-slate-800 p-4 flex flex-col justify-between gap-4"
+                className="rounded-2xl liquid-glass-inset hover:border-emerald-400/30 transition-all p-4 flex flex-col justify-between gap-4"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
@@ -285,12 +285,12 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
       {/* SECTION 2: KONFIGURASI AUTO-SYNC GOOGLE DRIVE & ANTREAN SINKRONISASI OFFLINE */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Left: Konfigurasi Endpoint Google Apps Script & Network Simulator */}
-        <section className="lg:col-span-5 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between">
+        <section className="lg:col-span-5 rounded-3xl liquid-glass-interactive p-6 flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <Cloud className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-base font-semibold text-slate-100">
+                <h2 className="text-base font-semibold text-white">
                   Koneksi Google Sheets & Offline Engine
                 </h2>
               </div>
@@ -298,7 +298,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
             </div>
 
             {/* Simulasi Mode Offline / Online Toggle untuk Pengujian */}
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl liquid-glass-inset flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 {syncConfig.simulateOfflineMode ? (
                   <WifiOff className="w-5 h-5 text-amber-400 shrink-0" />
@@ -389,33 +389,33 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
         </section>
 
         {/* Right: Tabel Antrean Sinkronisasi (Sync Queue) & Log Revisi Saldo */}
-        <section className="lg:col-span-7 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between">
+        <section className="lg:col-span-7 rounded-3xl liquid-glass-interactive p-6 flex flex-col justify-between">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-amber-400" />
                 <div>
-                  <h2 className="text-base font-semibold text-slate-100">
+                  <h2 className="text-base font-semibold text-white">
                     Antrean Sinkronisasi Lokal (Offline Sync Queue)
                   </h2>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-300">
                     Setiap perubahan data dicatat dengan timestamp, SHA-256 Checksum & enkripsi AES-256-GCM
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono text-slate-300">
                 Total Log: {syncQueue.length} Operasi
               </span>
             </div>
 
             {syncQueue.length === 0 ? (
-              <div className="my-8 text-center py-8 border border-dashed border-slate-800 rounded-xl">
-                <p className="text-xs text-slate-400">
+              <div className="my-8 text-center py-8 border border-dashed border-white/15 rounded-2xl">
+                <p className="text-xs text-slate-300">
                   Belum ada aktivitas perubahan baru. Semua data awal telah tersinkronisasi.
                 </p>
               </div>
             ) : (
-              <div className="mt-4 max-h-72 overflow-y-auto divide-y divide-slate-800/70 pr-1">
+              <div className="mt-4 max-h-72 overflow-y-auto divide-y divide-white/10 pr-1">
                 {syncQueue.map((q) => (
                   <div key={q.queueId} className="py-3 flex items-start justify-between gap-3 text-xs">
                     <div className="space-y-1 min-w-0">
@@ -450,18 +450,18 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
           </div>
 
           {/* Audit Riwayat Revisi Saldo */}
-          <div className="mt-5 pt-4 border-t border-slate-800">
-            <p className="text-xs font-semibold text-slate-300 mb-2">
+          <div className="mt-5 pt-4 border-t border-white/10">
+            <p className="text-xs font-semibold text-slate-200 mb-2">
               Riwayat Rekonsiliasi & Revisi Saldo ({period.revisionHistory.length})
             </p>
             <div className="space-y-1.5 max-h-32 overflow-y-auto text-xs">
               {period.revisionHistory.slice(0, 4).map((rev) => (
                 <div
                   key={rev.id}
-                  className="flex items-center justify-between gap-2 text-[11px] text-slate-400 py-1 border-b border-slate-800/40 last:border-b-0"
+                  className="flex items-center justify-between gap-2 text-[11px] text-slate-300 py-1 border-b border-white/5 last:border-b-0"
                 >
                   <span className="truncate">
-                    <strong className="text-slate-200">{rev.targetName}:</strong> {rev.reason}
+                    <strong className="text-white">{rev.targetName}:</strong> {rev.reason}
                   </span>
                   <span className="font-mono tabular-nums text-amber-300 shrink-0">
                     {formatIDR(rev.newBalance)}
@@ -474,7 +474,7 @@ export const AccountsAndSyncView: React.FC<AccountsAndSyncViewProps> = ({
       </div>
 
       {/* SECTION 3: KODE BACKEND GOOGLE APPS SCRIPT (`Code.gs`), KOTLIN ANDROID & SWAGGER */}
-      <section className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
+      <section className="rounded-3xl liquid-glass-interactive p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
             <Code2 className="w-5 h-5 text-emerald-400 shrink-0" />

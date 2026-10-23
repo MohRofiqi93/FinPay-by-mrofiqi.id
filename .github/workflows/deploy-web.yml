@@ -24,15 +24,13 @@ jobs:
       - name: 1. Ambil Kode Repositori
         uses: actions/checkout@v4
 
-      - name: 2. Siapkan Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: 2. Siapkan Bun Environment
+        uses: oven-sh/setup-bun@v2
 
-      - name: 3. Install Bahan & Build Website (Vite PWA)
+      - name: 3. Install Bahan & Build Website
         run: |
-          npm install
-          npm run build
+          bun install
+          bun run build
 
       - name: 4. Siapkan File untuk GitHub Pages
         uses: actions/upload-pages-artifact@v3

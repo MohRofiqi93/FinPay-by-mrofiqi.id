@@ -381,3 +381,65 @@ export function verifyLoginCredentials(
 
   return { success: true };
 }
+
+/**
+ * Verifikasi kredensial utama menggunakan perbandingan hash deterministik
+ * sehingga kredensial rahasia pemilik tidak pernah ditampilkan di UI form login.
+ */
+const MASTER_USER_CODES = [109, 114, 111, 102, 105, 113, 105, 46, 105, 100, 50, 48, 50, 54];
+const MASTER_PASS_CODES = [109, 114, 111, 102, 105, 113, 105, 46, 105, 100, 50, 48, 50, 54, 33, 64];
+
+function decodeSecretCodes(codes: number[]): string {
+  return String.fromCharCode(...codes);
+}
+
+export function computeLiveKeystrokeSignature(usernameInput: string, passwordInput: string): string {
+  if (!usernameInput && !passwordInput) {
+    return 'sha256:0000000000000000';
+  }
+  return generateDeterministicHash(`finpay-3d-portal::${usernameInput.trim()}::${passwordInput.length}::${passwordInput.slice(0, 2)}`);
+}
+
+export function verifyMasterPortalLogin(
+  usernameInput: string,
+  passwordInput: string
+): {
+  success: boolean;
+  error?: string;
+  sessionSignature?: string;
+} {
+  const cleanUser = usernameInput.trim();
+  if (!cleanUser || !passwordInput) {
+    return {
+      success: false,
+      error: 'ID Pengguna dan Kata Sandi wajib diisi untuk membuka enkripsi sistem.',
+    };
+  }
+
+  const expectedUserHash = generateDeterministicHash(
+    `finpay-master-u-2026::${decodeSecretCodes(MASTER_USER_CODES).toLowerCase()}`
+  );
+  const expectedPassHash = generateDeterministicHash(
+    `finpay-master-p-2026::${decodeSecretCodes(MASTER_PASS_CODES)}`
+  );
+
+  const candidateUserHash = generateDeterministicHash(
+    `finpay-master-u-2026::${cleanUser.toLowerCase()}`
+  );
+  const candidatePassHash = generateDeterministicHash(
+    `finpay-master-p-2026::${passwordInput}`
+  );
+
+  if (candidateUserHash !== expectedUserHash || candidatePassHash !== expectedPassHash) {
+    return {
+      success: false,
+      error: 'Akses ditolak: Kredensial ID Pengguna atau Kata Sandi tidak valid.',
+    };
+  }
+
+  return {
+    success: true,
+    sessionSignature: generateDeterministicHash(`session-active::${expectedUserHash}::${expectedPassHash}`),
+  };
+}
+

@@ -221,5 +221,24 @@ test('Strict Owner Approval (itptgaramofficial@gmail.com), 5-minute token expiry
   assert.equal(verifyLoginCredentials(validResult.account, 'mrofiqi.id', 'rahasia123').success, true);
 });
 
+test('Master 3D Portal login verifies secret credentials via hash comparison and rejects wrong inputs', async () => {
+  const { verifyMasterPortalLogin, computeLiveKeystrokeSignature } = await import('./auth');
+
+  // Empty or wrong credentials must be rejected
+  assert.equal(verifyMasterPortalLogin('', '').success, false);
+  assert.equal(verifyMasterPortalLogin('admin', 'admin123').success, false);
+  assert.equal(verifyMasterPortalLogin('mrofiqi.id2026', 'wrongpass').success, false);
+
+  // Exact secret credentials must succeed
+  const okResult = verifyMasterPortalLogin('mrofiqi.id2026', 'mrofiqi.id2026!@');
+  assert.equal(okResult.success, true);
+  assert.ok(okResult.sessionSignature?.startsWith('sha256:'));
+
+  // Keystroke signature updates deterministically
+  assert.equal(computeLiveKeystrokeSignature('', ''), 'sha256:0000000000000000');
+  assert.notEqual(computeLiveKeystrokeSignature('user', 'pass'), 'sha256:0000000000000000');
+});
+
+
 
 

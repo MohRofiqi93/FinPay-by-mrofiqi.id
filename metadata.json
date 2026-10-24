@@ -1,8 +1,6 @@
 {
-  "name": " FinPlanner by mrofiqi.id",
-  "description": "Aplikasi Manajemen Keuangan Pribadi (Financial Planner) Offline-First dengan Auto-Sync dua arah ke Google Sheets, Multi-Bulan Otomatis, Akumulasi Saldo Rollover, dan Analitik Real-Time.",
+  "name": "FinPay Pro Enterprise by mrofiqi.id",
+  "description": "Platform Manajemen Keuangan Bulanan, Tracker Harian, Keamanan 2FA, Notifikasi Push Real-Time, Dasbor Analitik Admin, Integrasi API Pihak Ketiga & Cloud Sync Lintas Perangkat.",
   "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
